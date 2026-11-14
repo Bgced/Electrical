@@ -36,6 +36,15 @@
   animation: sceneDrift 34s ease-in-out infinite alternate;
 }
 
+.scene-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
 .scene-shade {
   position: absolute;
   inset: 0;
@@ -292,10 +301,10 @@
 /* character stage */
 .scene-stage {
   position: absolute;
-  left: var(--gutter);
+  left: 0;
+  right: 0;
   bottom: calc(var(--desk-h) * 0.42);
   z-index: 10;
-  width: var(--stage-w);
   height: var(--stage-h);
   pointer-events: none;
 }
@@ -303,13 +312,36 @@
 .scene-stage::before {
   content: '';
   position: absolute;
-  left: -14%;
-  right: -14%;
+  left: 2%;
+  width: 52%;
   top: 4%;
   bottom: -8%;
-  background: radial-gradient(ellipse at 50% 62%, rgba(245, 196, 81, 0.16), rgba(245, 196, 81, 0.05) 45%, transparent 72%);
+  background: radial-gradient(ellipse at 32% 62%, rgba(245, 196, 81, 0.16), rgba(245, 196, 81, 0.05) 45%, transparent 72%);
   filter: blur(6px);
   pointer-events: none;
+}
+
+/* performer = character + bubble, freely positioned along --pos */
+.scene-performer {
+  position: absolute;
+  left: var(--pos, 15%);
+  bottom: 0;
+  width: var(--stage-w);
+  height: 100%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  will-change: left;
+}
+
+.scene-flip {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 92%;
+  transition: transform 0.24s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.scene-flip.is-left {
+  transform: scaleX(-1);
 }
 
 .scene-character {
@@ -333,8 +365,8 @@
 /* speech bubble */
 .scene-bubble {
   position: absolute;
-  left: 62%;
-  top: 4%;
+  left: 72%;
+  top: 1%;
   z-index: 12;
   display: flex;
   flex-direction: column;
@@ -374,6 +406,17 @@
 .scene-bubble:hover {
   transform: translateY(-2px);
   box-shadow: 6px 7px 0 rgba(0, 0, 0, 0.55);
+}
+
+.scene-bubble.is-flipped {
+  left: auto;
+  right: 72%;
+  border-radius: 14px 14px 4px 14px;
+}
+
+.scene-bubble.is-flipped::after {
+  left: auto;
+  right: 14px;
 }
 
 .scene-bubble.is-cta {
@@ -901,5 +944,133 @@
 
   .scene-stage {
     left: 2px;
+  }
+}
+
+/* manual steering pad */
+.scene-move {
+  position: absolute;
+  left: var(--gutter);
+  bottom: calc(var(--desk-h) + 12px);
+  z-index: 22;
+  display: grid;
+  gap: 5px;
+  padding: 7px 9px 8px;
+  border-radius: 13px;
+  border: 1px solid rgba(245, 196, 81, 0.22);
+  background: rgba(8, 11, 15, 0.66);
+  backdrop-filter: blur(8px);
+}
+
+.scene-move-label {
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: rgba(245, 196, 81, 0.9);
+}
+
+.scene-move-pad {
+  display: flex;
+  gap: 6px;
+}
+
+.scene-move-pad button {
+  width: 40px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(245, 196, 81, 0.5);
+  background: rgba(10, 13, 18, 0.74);
+  color: #f5c451;
+  font-size: 0.78rem;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  backdrop-filter: blur(6px);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.scene-move-pad button:hover {
+  background: rgba(245, 196, 81, 0.2);
+}
+
+.scene-move-pad button:active {
+  background: #f5c451;
+  color: #10130f;
+  transform: translateY(1px);
+}
+
+.scene-move-pad button:focus-visible {
+  outline: 2px solid rgba(56, 217, 208, 0.9);
+  outline-offset: 2px;
+}
+
+.scene-move-hint {
+  font-size: 0.5rem;
+  letter-spacing: 0.02em;
+  color: rgba(233, 238, 245, 0.5);
+}
+
+.scene-performer.is-moving .scene-character {
+  animation: walkBob 0.42s ease-in-out infinite;
+}
+
+@keyframes walkBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@media (max-width: 900px) {
+  .scene-move {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(var(--desk-h) + 2px);
+    padding: 6px 8px;
+  }
+
+  .scene-move-label {
+    text-align: center;
+  }
+
+  /* bubble sits centred above the head so it never hits the screen edge */
+  .scene-bubble {
+    left: 50%;
+    margin-left: -104px;
+    width: 208px;
+    max-width: 208px;
+    top: -6%;
+    font-size: 0.74rem;
+  }
+
+  .scene-bubble.is-flipped {
+    left: 50%;
+    right: auto;
+    margin-left: -104px;
+  }
+
+  .scene-bubble.is-flipped::after {
+    left: 14px;
+    right: auto;
+  }
+
+  .scene-move-pad button {
+    width: 38px;
+    height: 32px;
+  }
+
+  .scene-move-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .scene-move-label {
+    font-size: 0.46rem;
+  }
+
+  .scene-move-pad button {
+    width: 42px;
+    height: 34px;
   }
 }

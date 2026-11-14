@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   /** Hovering or tapping the engineer lifts the multimeter. */
   active?: boolean;
+  /** Increment to trigger a friendly wave. */
+  waveKey?: number;
+  /** Adds the walking bob while the performer travels. */
+  walking?: boolean;
   className?: string;
 };
 
@@ -16,12 +20,28 @@ type Props = {
  * nothing time- or random-dependent in render and no hydration mismatch.
  * `transform-box: fill-box` on the animated groups keeps the pivots correct.
  */
-export default function EngineerCharacter2D({ active = false, className = '' }: Props) {
+export default function EngineerCharacter2D({
+  active = false,
+  waveKey = 0,
+  walking = false,
+  className = '',
+}: Props) {
   const [waved, setWaved] = useState(false);
+  const lastWave = useRef(waveKey);
+
+  useEffect(() => {
+    if (waveKey === lastWave.current) return;
+    lastWave.current = waveKey;
+    setWaved(true);
+    const id = window.setTimeout(() => setWaved(false), 1700);
+    return () => window.clearTimeout(id);
+  }, [waveKey]);
 
   return (
     <svg
-      className={`eng${active ? ' is-active' : ''}${waved ? ' has-waved' : ''} ${className}`}
+      className={`eng${active ? ' is-active' : ''}${waved ? ' has-waved' : ''}${
+        walking ? ' is-walking' : ''
+      } ${className}`}
       viewBox="0 0 360 640"
       role="img"
       aria-label="Teknisi listrik melambai sambil memegang multimeter"

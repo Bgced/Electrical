@@ -15,13 +15,27 @@ function BlockHead({ label }: { label: I18nKey }) {
 }
 
 /* ---------------- Converter + Timeline ---------------- */
+function num(n: number, digits = 2) {
+  return n.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
 export function Converter() {
   const { t } = useApp();
   const [kw, setKw] = useState(1);
+  const [system, setSystem] = useState<'1p' | '3p'>('1p');
+  const [pf, setPf] = useState(0.95);
+
+  const voltage = system === '1p' ? 220 : 380;
+  const wattsIn = kw * 1000;
 
   const hp = (kw * 1.34102).toFixed(2);
-  const btu = Math.round(kw * 3412.14).toLocaleString('id-ID');
-  const amp = ((kw * 1000) / 220).toFixed(2);
+  const btu = Math.round(kw * 3412.14).toLocaleString('en-US');
+  const amp = wattsIn > 0 && pf > 0
+    ? system === '1p'
+      ? wattsIn / (voltage * pf)
+      : wattsIn / (Math.sqrt(3) * voltage * pf)
+    : 0;
+  const kva = amp > 0 ? (system === '1p' ? (voltage * amp) / 1000 : (Math.sqrt(3) * voltage * amp) / 1000) : 0;
 
   const timeline = [
     { year: '1800', title: 'timeline.t1', desc: 'timeline.d1' },
@@ -39,6 +53,7 @@ export function Converter() {
           <div className="conv-card">
             <h3>{t('conv.title')}</h3>
             <p className="conv-desc">{t('conv.desc')}</p>
+
             <div className="conv-input-row">
               <input
                 type="number"
@@ -47,10 +62,45 @@ export function Converter() {
                 min={0}
                 step={0.1}
                 onChange={(e) => setKw(parseFloat(e.target.value) || 0)}
-                aria-label="kW"
+                aria-label="Daya dalam kW"
               />
               <span className="conv-unit">kW</span>
             </div>
+
+            <div className="conv-sys" role="group" aria-label="Sistem tegangan">
+              <button
+                type="button"
+                className={system === '1p' ? 'is-on' : ''}
+                aria-pressed={system === '1p'}
+                onClick={() => setSystem('1p')}
+              >
+                1P · 220 V
+              </button>
+              <button
+                type="button"
+                className={system === '3p' ? 'is-on' : ''}
+                aria-pressed={system === '3p'}
+                onClick={() => setSystem('3p')}
+              >
+                3P · 380 V
+              </button>
+            </div>
+
+            <label className="conv-pf">
+              <span>
+                Faktor daya <strong>cos φ {num(pf, 2)}</strong>
+              </span>
+              <input
+                type="range"
+                min={0.5}
+                max={1}
+                step={0.01}
+                value={pf}
+                onChange={(e) => setPf(parseFloat(e.target.value))}
+                aria-label="Faktor daya"
+              />
+            </label>
+
             <div className="conv-results">
               <div className="conv-result">
                 <span>{t('conv.hp')}</span>
@@ -61,10 +111,19 @@ export function Converter() {
                 <strong>{btu} BTU/h</strong>
               </div>
               <div className="conv-result">
-                <span>{t('conv.amp')}</span>
-                <strong>{kw > 0 ? `${amp} A` : '0.00 A'}</strong>
+                <span>Arus @{voltage} V ({system === '1p' ? '1P' : '3P'})</span>
+                <strong>{num(amp, 2)} A</strong>
+              </div>
+              <div className="conv-result">
+                <span>Daya semu</span>
+                <strong>{num(kva, 2)} kVA</strong>
               </div>
             </div>
+
+            <p className="conv-note">
+              In = P ÷ ({system === '1p' ? 'V' : '√3 · V'} · cos φ) — {system === '1p' ? '1 fasa 220 V' : '3 fasa 380 V'},
+              cos φ {num(pf, 2)}.
+            </p>
           </div>
 
           <div className="timeline">

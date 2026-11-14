@@ -1,7 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { useApp } from '@/lib/app-context';
 import type { I18nKey } from '@/lib/i18n';
+import Lightbox from '@/components/Lightbox';
+import SafeImg from '@/components/SafeImg';
 
 function BlockHead({ label }: { label: I18nKey }) {
   const { t } = useApp();
@@ -19,46 +22,59 @@ const PROJECTS: {
   desc: I18nKey;
   tag: I18nKey;
   img: string;
+  fallback: string;
   meta: string[];
 }[] = [
   {
     title: 'projects.p1.title',
     desc: 'projects.p1.desc',
     tag: 'projects.p1.tag',
-    img: 'foto/panel-distribusi.jpg',
+    img: '/foto/panel-distribusi.jpg',
+    fallback: '/foto/komponen-listrik.jpg',
     meta: ['400 V', '3 Phase', 'MCCB'],
   },
   {
     title: 'projects.p2.title',
     desc: 'projects.p2.desc',
     tag: 'projects.p2.tag',
-    img: 'foto/thermal-relay.jpg',
-    meta: ['15 kW', 'Thermal Relay', 'Kontaktor'],
+    img: '/foto/audit-termal.jpg',
+    fallback: '/foto/thermal-relay.jpg',
+    meta: ['Thermal Camera', 'Preventif'],
   },
   {
     title: 'projects.p3.title',
     desc: 'projects.p3.desc',
     tag: 'projects.p3.tag',
-    img: 'foto/pekerja-listrik.jpg',
-    meta: ['Thermal Camera', 'Preventif'],
+    img: '/foto/panel-plc.jpg',
+    fallback: '/foto/komponen-listrik.jpg',
+    meta: ['PLC', 'SCADA', 'Interlock'],
   },
 ];
 
 export function Projects() {
   const { t } = useApp();
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const items = PROJECTS.map((p) => ({ src: p.img, caption: t(p.title), fallback: p.fallback }));
+
   return (
     <section id="proyek" className="block">
       <div className="container">
         <BlockHead label="projects.label" />
         <div className="project-grid">
-          {PROJECTS.map((p) => (
+          {PROJECTS.map((p, i) => (
             <article className="project-card" key={p.title}>
-              <div
+              <button
+                type="button"
                 className="project-media"
-                style={{ backgroundImage: `url('${p.img}')` }}
+                aria-label={`Pratinjau foto: ${t(p.title)}`}
+                onClick={() => setOpenIndex(i)}
               >
+                <SafeImg src={p.img} fallback={p.fallback} alt={t(p.title)} />
                 <span className="project-tag">{t(p.tag)}</span>
-              </div>
+                <span className="project-zoom" aria-hidden="true">
+                  ⤢
+                </span>
+              </button>
               <div className="project-body">
                 <h3>{t(p.title)}</h3>
                 <p>{t(p.desc)}</p>
@@ -72,6 +88,8 @@ export function Projects() {
           ))}
         </div>
       </div>
+
+      <Lightbox items={items} index={openIndex} onClose={() => setOpenIndex(null)} onSelect={setOpenIndex} />
     </section>
   );
 }
@@ -105,39 +123,49 @@ export function Process() {
 }
 
 /* ---------------- Gallery ---------------- */
-const GALLERY: { src: string; caption: I18nKey; wide?: boolean }[] = [
+const GALLERY: { src: string; caption: I18nKey; wide?: boolean; fallback?: string }[] = [
   {
-    src: 'foto/pekerja-listrik.jpg',
+    src: '/foto/pekerja-listrik.jpg',
     caption: 'gallery.c1',
     wide: true,
   },
-  { src: 'foto/panel-distribusi.jpg', caption: 'gallery.c2' },
-  { src: 'foto/thermal-relay.jpg', caption: 'gallery.c3' },
-  { src: 'foto/superkonduktor.jpg', caption: 'gallery.c4' },
-  { src: 'foto/komponen-listrik.jpg', caption: 'gallery.c5' },
-  { src: 'foto/komponen-listrik-2.jpg', caption: 'gallery.c6' },
-  { src: 'foto/logo-pertamina.jpg', caption: 'gallery.c7' },
+  { src: '/foto/panel-distribusi.jpg', caption: 'gallery.c2' },
+  { src: '/foto/thermal-relay.jpg', caption: 'gallery.c3' },
+  { src: '/foto/superkonduktor.jpg', caption: 'gallery.c4' },
+  { src: '/foto/komponen-listrik.jpg', caption: 'gallery.c5' },
+  { src: '/foto/komponen-listrik-2.jpg', caption: 'gallery.c6' },
+  { src: '/foto/logo-pertamina.jpg', caption: 'gallery.c7' },
+  { src: '/foto/audit-termal.jpg', caption: 'gallery.c8', fallback: '/foto/thermal-relay.jpg' },
+  { src: '/foto/panel-plc.jpg', caption: 'gallery.c9', fallback: '/foto/komponen-listrik.jpg' },
 ];
 
 export function Gallery() {
   const { t } = useApp();
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const items = GALLERY.map((g) => ({ src: g.src, caption: t(g.caption), fallback: g.fallback }));
+
   return (
     <section id="galeri" className="block">
       <div className="container">
         <BlockHead label="gallery.label" />
         <div className="gallery-grid">
-          {GALLERY.map((g) => (
-            <figure
-              key={g.src}
-              className={`gallery-item${g.wide ? ' gallery-wide' : ''}`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={g.src} alt={t(g.caption)} loading="lazy" />
+          {GALLERY.map((g, i) => (
+            <figure key={g.src} className={`gallery-item${g.wide ? ' gallery-wide' : ''}`}>
+              <button
+                type="button"
+                className="gallery-open"
+                aria-label={`Perbesar foto: ${t(g.caption)}`}
+                onClick={() => setOpenIndex(i)}
+              >
+                <SafeImg src={g.src} fallback={g.fallback} alt={t(g.caption)} />
+              </button>
               <figcaption>{t(g.caption)}</figcaption>
             </figure>
           ))}
         </div>
       </div>
+
+      <Lightbox items={items} index={openIndex} onClose={() => setOpenIndex(null)} onSelect={setOpenIndex} />
     </section>
   );
 }
@@ -217,7 +245,7 @@ const COMPONENTS: {
   title: I18nKey;
   desc: I18nKey;
   phi: I18nKey;
-  specs: { label: I18nKey; value: string | I18nKey }[];
+  specs: { label: I18nKey; value: I18nKey }[];
 }[] = [
   {
     img: 'foto/komponen-listrik.jpg',
@@ -226,7 +254,7 @@ const COMPONENTS: {
     desc: 'comp.d1',
     phi: 'comp.p1',
     specs: [
-      { label: 'comp.s1', value: '600 VDC' },
+      { label: 'comp.s1', value: 'comp.s1v' },
       { label: 'comp.s2', value: 'comp.s2v' },
       { label: 'comp.s3', value: 'comp.s3v' },
     ],
@@ -239,7 +267,7 @@ const COMPONENTS: {
     phi: 'comp.p2',
     specs: [
       { label: 'comp.s4', value: 'comp.s4v' },
-      { label: 'comp.s5', value: '0,16 – 2,5 A' },
+      { label: 'comp.s5', value: 'comp.s5v' },
       { label: 'comp.s6', value: 'comp.s6v' },
     ],
   },
@@ -266,7 +294,7 @@ export function Components() {
                   {c.specs.map((s) => (
                     <div key={s.label} style={{ display: 'contents' }}>
                       <dt>{t(s.label)}</dt>
-                      <dd>{typeof s.value === 'string' ? s.value : t(s.value as I18nKey)}</dd>
+                      <dd>{t(s.value)}</dd>
                     </div>
                   ))}
                 </dl>

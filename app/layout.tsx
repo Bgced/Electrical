@@ -3,13 +3,13 @@ import './globals.css';
 import './refined.css';
 import './promax.css';
 import './scene.css';
+import './lab.css';
+import './diorama.css';
 import { AppProvider } from '@/lib/app-context';
 import { AudioProvider } from '@/lib/audio';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import IntroOverlay from '@/components/IntroOverlay';
-import ScrollUI from '@/components/ScrollUI';
-import ScrollReveal from '@/components/ScrollReveal';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://ee-engineering.id'),
@@ -63,14 +63,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AppProvider>
           <AudioProvider>
             <IntroOverlay />
-            <ScrollUI />
-            <ScrollReveal />
             <Header />
-            <div className="layout">
-              <main className="main-content" id="konten">
-                {children}
-              </main>
-            </div>
+            <main id="konten">{children}</main>
             <Footer />
           </AudioProvider>
         </AppProvider>

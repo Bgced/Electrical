@@ -54,7 +54,8 @@ export default function IntroOverlay() {
   );
 
   useEffect(() => {
-    setOpen(localStorage.getItem('introSeen') !== '1');
+    // no welcome modal on load — sound is opt-in from the footer
+    setOpen(false);
 
     const tick = () => setGreeting(getGreeting(new Date().getHours()));
     tick();
@@ -133,22 +134,22 @@ export default function IntroOverlay() {
               type="button"
               ref={firstOption}
               className="intro-option intro-option-primary"
-              onClick={() => choose(true)}
+              onClick={() => choose(false)}
             >
               <span className="intro-option-icon">
-                <SoundOn />
+                <SoundOff />
               </span>
               <span className="intro-option-body">
                 <span className="intro-option-tag">
-                  {lang === 'id' ? 'Disarankan' : 'Recommended'}
+                  {lang === 'id' ? 'Default · tanpa suara' : 'Default · muted'}
                 </span>
                 <span className="intro-option-title">
-                  {lang === 'id' ? 'Masuk dengan musik' : 'Enter with music'}
+                  {lang === 'id' ? 'Masuk tanpa musik' : 'Enter without music'}
                 </span>
                 <span className="intro-option-desc">
                   {lang === 'id'
-                    ? 'Musik latar lembut menemani Anda menjelajah.'
-                    : 'A soft soundtrack plays while you browse.'}
+                    ? 'Pengalaman senyap — fokus ke data dan simulasi.'
+                    : 'Silent experience — focus on data and simulation.'}
                 </span>
               </span>
               <span className="intro-option-go" aria-hidden="true">
@@ -158,22 +159,18 @@ export default function IntroOverlay() {
               </span>
             </button>
 
-            <button
-              type="button"
-              className="intro-option"
-              onClick={() => choose(false)}
-            >
+            <button type="button" className="intro-option" onClick={() => choose(true)}>
               <span className="intro-option-icon">
-                <SoundOff />
+                <SoundOn />
               </span>
               <span className="intro-option-body">
                 <span className="intro-option-title">
-                  {lang === 'id' ? 'Masuk tanpa musik' : 'Enter without music'}
+                  {lang === 'id' ? 'Masuk dengan musik' : 'Enter with music'}
                 </span>
                 <span className="intro-option-desc">
                   {lang === 'id'
-                    ? 'Pengalaman senyap, tanpa suara apa pun.'
-                    : 'A silent experience, no sound at all.'}
+                    ? 'Musik latar lembut, bisa diganti kapan saja.'
+                    : 'Soft soundtrack, changeable anytime.'}
                 </span>
               </span>
               <span className="intro-option-go" aria-hidden="true">

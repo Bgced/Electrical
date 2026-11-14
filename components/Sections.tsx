@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '@/lib/app-context';
+import SafeImg from '@/components/SafeImg';
 import { asset } from '@/lib/assets';
 import type { I18nKey } from '@/lib/i18n';
 
@@ -111,9 +112,11 @@ export function VideoBand() {
       <div className="video-overlay">
         <div className="container">
           <div className="video-info">
-            <span className="video-label">{t('hero.kicker')}</span>
-            <h2 className="video-title">{t('about.title')}</h2>
-            <p className="video-desc">{t('three.desc')}</p>
+            <span className="video-label">ENERGI &amp; INFRASTRUKTUR</span>
+            <h2 className="video-title">Transisi Energi &amp; Infrastruktur Skala Industri</h2>
+            <p className="video-desc">
+              Penerapan sistem kelistrikan andal untuk pembangkit energi terbarukan dan utilitas modern.
+            </p>
           </div>
         </div>
       </div>
@@ -122,15 +125,40 @@ export function VideoBand() {
 }
 
 /* ---------------- About ---------------- */
+const PILLARS = [
+  {
+    title: 'Distribusi & Gardu Tenaga',
+    desc: 'Panel LVMDP/SDP, seleksi MCCB, dan penyeimbangan beban fasa R-S-T.',
+    code: 'DIST-01',
+  },
+  {
+    title: 'Otomasi & Kendali Industri',
+    desc: 'PLC, SCADA, HMI, dan proteksi motor induksi 3 fasa.',
+    code: 'AUTO-02',
+  },
+  {
+    title: 'Elektronika Daya & Konversi',
+    desc: 'Inverter, catu daya DC, dan optimalisasi efisiensi energi.',
+    code: 'PWR-03',
+  },
+  {
+    title: 'Audit K3 & Pembumian',
+    desc: 'Pengujian pentanahan &lt; 5 Ω, thermography, dan prosedur LOTO.',
+    code: 'K3-04',
+  },
+];
+
 export function About() {
   const { t } = useApp();
   return (
     <section id="tentang" className="block">
       <div className="container">
         <SectionHead label="about.label" />
-        <div className="about-grid">
-          <div>
-            <h2 className="about-title">{t('about.title')}</h2>
+        <div className="about-asym">
+          <div className="about-lead">
+            <h2 className="about-title">
+              Rekayasa Kelistrikan <span>Presisi</span> dari Konsep hingga Komisioning
+            </h2>
             <p className="about-desc">{t('about.desc1')}</p>
             <p className="about-desc">{t('about.desc2')}</p>
             <div className="about-badge">
@@ -139,26 +167,50 @@ export function About() {
               </svg>
               <span>{t('about.badge')}</span>
             </div>
-          </div>
-          <div className="about-visual">
-            <div className="about-card">
-              <div className="about-card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M13 2L3 14H11L11 22L21 10H13V2Z" />
-                </svg>
-              </div>
-              <h3>{t('about.card1.title')}</h3>
-              <p>{t('about.card1.desc')}</p>
+
+            <aside className="about-profile">
+            <div className="about-profile-photo">
+              <SafeImg
+                src="/foto/engineer-workspace.jpg"
+                fallback="/foto/pekerja-listrik.jpg"
+                alt="Cedric Kilian di area kerja panel"
+              />
+              <span className="about-profile-status">
+                <i /> SIAP KOMISIONING
+              </span>
             </div>
-            <div className="about-card">
-              <div className="about-card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M12 1v6m0 6v6M1 12h6m6 0h6" />
-                </svg>
-              </div>
-              <h3>{t('about.card2.title')}</h3>
-              <p>{t('about.card2.desc')}</p>
+            <div className="about-profile-body">
+              <span className="about-profile-role">LEAD ELECTRICAL ENGINEER</span>
+              <h3>Cedric Kilian</h3>
+              <p>
+                12 tahun menangani distribusi tegangan menengah, audit termal, dan komisioning panel
+                industri. Memegang sertifikasi PUIL &amp; K3 listrik.
+              </p>
+              <ul className="about-profile-meta">
+                <li>
+                  <b>24+</b> proyek
+                </li>
+                <li>
+                  <b>12 MW</b> kapasitas
+                </li>
+                <li>
+                  <b>100%</b> PUIL
+                </li>
+              </ul>
+            </div>
+            </aside>
+          </div>
+
+          <div className="about-right">
+            <span className="about-right-label">EMPAT PILAR KOMPETENSI</span>
+            <div className="about-pillars">
+              {PILLARS.map((p) => (
+                <article className="about-pillar" key={p.title}>
+                  <span className="about-pillar-code">{p.code}</span>
+                  <h3>{p.title}</h3>
+                  <p>{p.desc}</p>
+                </article>
+              ))}
             </div>
           </div>
         </div>
