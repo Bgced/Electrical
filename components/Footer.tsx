@@ -27,11 +27,12 @@ export default function Footer() {
             {(
               [
                 ['nav.about', '#tentang'],
-                ['nav.services', '#layanan'],
+                ['nav.simulator', '#simulator'],
+                ['nav.visual', '#visual3d'],
+                ['nav.comp', '#komponen'],
                 ['nav.projects', '#proyek'],
                 ['nav.specs', '#spesifikasi'],
-                ['nav.simulator', '#simulator'],
-                ['nav.faq', '#faq'],
+                ['nav.contact', '#kontak'],
               ] as [I18nKey, string][]
             ).map(([key, href]) => (
               <a key={key} href={href} className="footer-link">

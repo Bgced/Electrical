@@ -39,7 +39,7 @@ const PROJECTS: {
     tag: 'projects.p2.tag',
     img: '/foto/audit-termal.jpg',
     fallback: '/foto/thermal-relay.jpg',
-    meta: ['Thermal Camera', 'Preventif'],
+    meta: ['15 kW', 'Thermal Relay', 'Kontaktor'],
   },
   {
     title: 'projects.p3.title',
@@ -47,7 +47,7 @@ const PROJECTS: {
     tag: 'projects.p3.tag',
     img: '/foto/panel-plc.jpg',
     fallback: '/foto/komponen-listrik.jpg',
-    meta: ['PLC', 'SCADA', 'Interlock'],
+    meta: ['Thermal Camera', 'Thermography', 'Preventif'],
   },
 ];
 

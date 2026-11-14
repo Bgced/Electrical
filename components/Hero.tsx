@@ -16,7 +16,15 @@ const ZONES = [
   { from: 61, to: MAX_X, text: 'Klik meja osiloskop buat tes rangkaian!' },
 ];
 
+const TAP_MESSAGES = [
+  'Halo! Klik meja alat buat tes rangkaian ⚡',
+  'Tegangan 380V 3-fasa aman terkendali!',
+  'Klik di meja buat geser posisi saya.',
+];
+
 const clamp = (v: number, min = MIN_X, max = MAX_X) => Math.min(max, Math.max(min, v));
+const dragBounds = (): [number, number] =>
+  typeof window !== 'undefined' && window.innerWidth < 768 ? [8, 72] : [6, 82];
 const zoneOf = (x: number) => ZONES.findIndex((z) => x >= z.from && x <= z.to);
 
 const scrollToId = (id: string) => {
@@ -27,6 +35,7 @@ const scrollToId = (id: string) => {
 export default function Hero() {
   const sceneRef = useRef<HTMLDivElement>(null);
   const actorRef = useRef<HTMLDivElement>(null);
+  const bubbleRef = useRef<HTMLSpanElement>(null);
 
   const pos = useRef(START_X);
   const target = useRef(START_X);
@@ -37,6 +46,19 @@ export default function Hero() {
   const [walking, setWalking] = useState(false);
   const [waveKey, setWaveKey] = useState(0);
   const [zoneIndex, setZoneIndex] = useState(zoneOf(START_X));
+  const [manualBubble, setManualBubble] = useState<number | null>(null);
+  const [bubbleSide, setBubbleSide] = useState<'left' | 'center' | 'right'>('center');
+  const [dragging, setDragging] = useState(false);
+
+  const sideRef = useRef<'left' | 'center' | 'right'>('center');
+  const drag = useRef({
+    active: false,
+    id: -1,
+    x: 0,
+    startX: 0,
+    startPos: START_X,
+    moved: false,
+  });
 
   // single rAF loop drives click-to-walk and held keys
   useEffect(() => {
@@ -51,7 +73,9 @@ export default function Hero() {
       if (keys.current.right) target.current = clamp(target.current + SPEED * dt);
 
       const delta = target.current - pos.current;
-      if (Math.abs(delta) > 0.05) {
+      if (drag.current.active) {
+        // the pointer owns the position while dragging
+      } else if (Math.abs(delta) > 0.05) {
         pos.current += Math.sign(delta) * Math.min(Math.abs(delta), SPEED * 1.15 * dt);
         if (actorRef.current) actorRef.current.style.setProperty('--x', `${pos.current}%`);
         const nextDir = delta < 0 ? 'left' : 'right';
@@ -69,6 +93,23 @@ export default function Hero() {
       if (nextZone !== zone.current && nextZone !== -1) {
         zone.current = nextZone;
         setZoneIndex(nextZone);
+      }
+
+      const side = pos.current < 38 ? 'left' : pos.current > 62 ? 'right' : 'center';
+      if (side !== sideRef.current) {
+        sideRef.current = side;
+        setBubbleSide(side);
+      }
+
+      const scene = sceneRef.current;
+      const actor = actorRef.current;
+      const bubble = bubbleRef.current;
+      if (scene && actor && bubble) {
+        const width = scene.clientWidth;
+        const bw = bubble.offsetWidth;
+        const center = (pos.current / 100) * width;
+        const ideal = Math.min(Math.max(center - bw / 2, 8), Math.max(8, width - bw - 8));
+        actor.style.setProperty('--bubble-shift', `${ideal - (center - bw / 2)}px`);
       }
 
       raf = requestAnimationFrame(frame);
@@ -91,10 +132,12 @@ export default function Hero() {
       const k = e.key.toLowerCase();
       if (k === 'arrowleft' || k === 'a') {
         keys.current.left = true;
+        setManualBubble(null);
         e.preventDefault();
       }
       if (k === 'arrowright' || k === 'd') {
         keys.current.right = true;
+        setManualBubble(null);
         e.preventDefault();
       }
     };
@@ -122,7 +165,59 @@ export default function Hero() {
     const box = sceneRef.current?.getBoundingClientRect();
     if (!box) return;
     target.current = clamp(((clientX - box.left) / box.width) * 100);
+    setManualBubble(null);
   }, []);
+
+  const onActorPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drag.current = {
+      active: true,
+      id: e.pointerId,
+      x: e.clientX,
+      startX: e.clientX,
+      startPos: pos.current,
+      moved: false,
+    };
+    setDragging(true);
+    setManualBubble(null);
+  };
+
+  const onActorPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d.active || d.id !== e.pointerId) return;
+    const dx = e.clientX - d.startX;
+    if (!d.moved && Math.abs(dx) > 5) d.moved = true;
+    if (!d.moved) return;
+
+    const box = sceneRef.current?.getBoundingClientRect();
+    if (!box) return;
+    const [lo, hi] = dragBounds();
+    const half = (actorRef.current?.offsetWidth ?? 160) / 2;
+    const safeLo = Math.max(lo, (half / box.width) * 100 + 1);
+    const safeHi = Math.min(hi, 100 - (half / box.width) * 100 - 1);
+    const next = Math.min(safeHi, Math.max(safeLo, d.startPos + (dx / box.width) * 100));
+    pos.current = next;
+    target.current = next;
+    actorRef.current?.style.setProperty('--x', `${next}%`);
+    setDir(dx < 0 ? 'left' : 'right');
+    setWalking(true);
+  };
+
+  const onActorPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (d.id !== e.pointerId) return;
+    const wasMoved = d.moved;
+    d.active = false;
+    d.id = -1;
+    setDragging(false);
+    setWalking(false);
+
+    if (!wasMoved) {
+      setWaveKey((n) => n + 1);
+      setManualBubble((m) => (m === null ? 0 : (m + 1) % TAP_MESSAGES.length));
+    }
+  };
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const el = e.target as HTMLElement;
@@ -334,25 +429,34 @@ export default function Hero() {
 
       {/* performer */}
       <div
-        className="dio-actor"
+        className={`dio-actor${dragging ? ' is-dragging' : ''}`}
         ref={actorRef}
         data-object="engineer"
+        data-side={bubbleSide}
         role="button"
         tabIndex={0}
-        aria-label="Sapa teknisi"
-        onClick={(e) => {
-          e.stopPropagation();
-          setWaveKey((n) => n + 1);
-        }}
+        aria-label="Geser teknisi, atau ketuk untuk menyapa"
+        draggable={false}
+        style={{ touchAction: 'none' }}
+        onPointerDown={onActorPointerDown}
+        onPointerMove={onActorPointerMove}
+        onPointerUp={onActorPointerUp}
+        onPointerCancel={onActorPointerUp}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             setWaveKey((n) => n + 1);
+            setManualBubble((m) => (m === null ? 0 : (m + 1) % TAP_MESSAGES.length));
           }
         }}
       >
-        <span className="dio-bubble" role="status" key={zoneIndex}>
-          {ZONES[zoneIndex].text}
+        <span
+          className="dio-bubble"
+          role="status"
+          ref={bubbleRef}
+          key={manualBubble ?? `z${zoneIndex}`}
+        >
+          {manualBubble !== null ? TAP_MESSAGES[manualBubble] : ZONES[zoneIndex].text}
         </span>
         <span className="dio-flip" data-dir={dir}>
           <EngineerCharacter2D active={walking} waveKey={waveKey} walking={walking} />

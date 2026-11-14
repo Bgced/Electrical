@@ -143,7 +143,7 @@ const PILLARS = [
   },
   {
     title: 'Audit K3 & Pembumian',
-    desc: 'Pengujian pentanahan &lt; 5 Ω, thermography, dan prosedur LOTO.',
+    desc: 'Pengujian pentanahan < 5 Ω, thermography, dan prosedur LOTO.',
     code: 'K3-04',
   },
 ];
@@ -173,18 +173,18 @@ export function About() {
               <SafeImg
                 src="/foto/engineer-workspace.jpg"
                 fallback="/foto/pekerja-listrik.jpg"
-                alt="Cedric Kilian di area kerja panel"
+                alt="Area kerja panel distribusi"
               />
               <span className="about-profile-status">
                 <i /> SIAP KOMISIONING
               </span>
             </div>
             <div className="about-profile-body">
-              <span className="about-profile-role">LEAD ELECTRICAL ENGINEER</span>
-              <h3>Cedric Kilian</h3>
+              <span className="about-profile-role">ENGINEERING &amp; SIMULATION DIVISION</span>
+              <h3>Cekael Electrical Lab</h3>
               <p>
-                12 tahun menangani distribusi tegangan menengah, audit termal, dan komisioning panel
-                industri. Memegang sertifikasi PUIL &amp; K3 listrik.
+                Berfokus pada perancangan sistem distribusi tenaga listrik, otomasi kendali industri,
+                dan simulasi proteksi berbasis standar PUIL 2021 &amp; IEC 60364.
               </p>
               <ul className="about-profile-meta">
                 <li>

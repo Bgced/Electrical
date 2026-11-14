@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 const NAV = [
   { label: 'TENTANG', href: '#tentang' },
   { label: 'SIMULATOR', href: '#simulator' },
+  { label: 'VISUAL 3D', href: '#visual3d' },
   { label: 'KOMPONEN', href: '#komponen' },
   { label: 'PROYEK', href: '#proyek' },
   { label: 'DATA TEKNIS', href: '#spesifikasi' },
