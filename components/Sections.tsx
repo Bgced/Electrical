@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useApp } from '@/lib/app-context';
 import type { I18nKey } from '@/lib/i18n';
 
@@ -16,9 +17,21 @@ function SectionHead({ label }: { label: I18nKey }) {
 /* ---------------- Video ---------------- */
 export function VideoBand() {
   const { t } = useApp();
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // React does not always write the `muted` attribute to the DOM, which lets the
+  // video soundtrack play alongside the background music. Force it imperatively.
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.defaultMuted = true;
+      videoRef.current.volume = 0;
+    }
+  }, []);
+
   return (
     <section className="video-section" id="video">
-      <video autoPlay muted loop playsInline>
+      <video ref={videoRef} autoPlay muted loop playsInline preload="metadata">
         <source
           src="video/vidssave.com%20Dukung%20Energi%20Bersih%2C%20Ini%20PLTS%20Terbesar%20Pertamina%20di%20Rokan%20720P.mp4"
           type="video/mp4"
