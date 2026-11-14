@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import './refined.css';
+import './promax.css';
+import './scene.css';
 import { AppProvider } from '@/lib/app-context';
 import { AudioProvider } from '@/lib/audio';
 import Header from '@/components/Header';
@@ -8,7 +10,6 @@ import Footer from '@/components/Footer';
 import IntroOverlay from '@/components/IntroOverlay';
 import ScrollUI from '@/components/ScrollUI';
 import ScrollReveal from '@/components/ScrollReveal';
-import { NowPlaying } from '@/components/MusicPlayer';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://ee-engineering.id'),
@@ -71,7 +72,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </main>
             </div>
             <Footer />
-            <NowPlaying />
           </AudioProvider>
         </AppProvider>
       </body>

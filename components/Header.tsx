@@ -5,26 +5,25 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '@/lib/app-context';
 import type { I18nKey } from '@/lib/i18n';
-import { MusicButton } from '@/components/MusicPlayer';
 
 type NavItem = { href: string; key: I18nKey };
 
 /** Kept short so the bar never wraps on a 1280px laptop. */
 const NAV: NavItem[] = [
   { href: '/#tentang', key: 'nav.about' },
-  { href: '/#layanan', key: 'nav.services' },
-  { href: '/#proyek', key: 'nav.projects' },
-  { href: '/#galeri', key: 'nav.gallery' },
   { href: '/#simulator', key: 'nav.simulator' },
+  { href: '/#komponen', key: 'nav.comp' },
+  { href: '/#proyek', key: 'nav.projects' },
+  { href: '/#spesifikasi', key: 'nav.specs' },
 ];
 
 const NAV_MORE: NavItem[] = [
+  { href: '/#layanan', key: 'nav.services' },
+  { href: '/#galeri', key: 'nav.gallery' },
   { href: '/#industri', key: 'nav.industries' },
   { href: '/#proses', key: 'nav.process' },
   { href: '/#visual3d', key: 'nav.three' },
-  { href: '/#komponen', key: 'nav.comp' },
   { href: '/#wawasan', key: 'nav.insights' },
-  { href: '/#spesifikasi', key: 'nav.specs' },
   { href: '/#keselamatan', key: 'nav.safety' },
   { href: '/#faq', key: 'nav.faq' },
 ];
@@ -225,7 +224,12 @@ export default function Header() {
                 <span className="clock">{clock}</span>
               </div>
 
-              <MusicButton />
+              <a href="#kontak" className="header-cta">
+                <span>{lang === 'id' ? 'Konsultasi' : 'Consult'}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
 
               <button
                 id="infoToggle"
@@ -287,6 +291,9 @@ export default function Header() {
           ))}
 
           <div className="mobile-extra">
+            <a href="#kontak" className="btn btn-primary mobile-cta" onClick={() => setMenuOpen(false)}>
+              {lang === 'id' ? 'Konsultasi Gratis' : 'Free consultation'}
+            </a>
             <button type="button" className="btn btn-secondary" onClick={toggleLang}>
               <span className="lang-text">{lang === 'id' ? 'ID' : 'EN'}</span>
               {lang === 'id' ? 'Bahasa Indonesia' : 'English'}

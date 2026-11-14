@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useApp } from '@/lib/app-context';
 import { asset } from '@/lib/assets';
 import type { I18nKey } from '@/lib/i18n';
@@ -23,24 +23,10 @@ export function VideoBand() {
   const { t } = useApp();
   const videoRef = useRef<HTMLVideoElement>(null);
   // Autoplay can be refused (Safari low-power, Chrome with autoplay blocked,
-  // background tab). Without a way to start it the band just sits on a frozen
-  // first frame, so track that and offer an explicit play button.
+  // background tab). There is no play button by design, so a refused band
+  // simply shows the poster still and retries itself on the next opportunity.
   const [blocked, setBlocked] = useState(false);
   const [failed, setFailed] = useState(false);
-
-  const requestPlay = useCallback(() => {
-    const el = videoRef.current;
-    if (!el) return;
-    // React drops the `muted` attribute on the DOM, which lets the video
-    // soundtrack fight the background music. Set it on the element directly.
-    el.muted = true;
-    el.defaultMuted = true;
-    el.volume = 0;
-    const started = el.play();
-    if (started && typeof started.then === 'function') {
-      started.then(() => setBlocked(false)).catch(() => setBlocked(true));
-    }
-  }, []);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -111,6 +97,7 @@ export function VideoBand() {
           ref={videoRef}
           src={VIDEO_SRC}
           poster={VIDEO_POSTER}
+          className={blocked ? 'is-idle' : undefined}
           autoPlay
           muted
           loop
@@ -120,19 +107,6 @@ export function VideoBand() {
           aria-hidden="true"
           onError={() => setFailed(true)}
         />
-      )}
-      {blocked && !failed && (
-        <button
-          type="button"
-          className="video-play"
-          onClick={requestPlay}
-          aria-label={t('video.play')}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8 5v14l11-7z" fill="currentColor" />
-          </svg>
-          <span>{t('video.play')}</span>
-        </button>
       )}
       <div className="video-overlay">
         <div className="container">

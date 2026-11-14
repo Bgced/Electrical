@@ -119,7 +119,7 @@ export function Faq() {
 export function Cta() {
   const { t } = useApp();
   return (
-    <section className="cta-section">
+    <section className="cta-section" id="kontak">
       <div className="container">
         <h2 className="cta-title">{t('cta.title')}</h2>
         <p className="cta-desc">{t('cta.desc')}</p>

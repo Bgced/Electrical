@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { useApp } from '@/lib/app-context';
+import { useAudio, OPEN_INTRO_EVENT } from '@/lib/audio';
 import type { I18nKey } from '@/lib/i18n';
 
 export default function Footer() {
-  const { t } = useApp();
+  const { t, lang } = useApp();
+  const { enabled } = useAudio();
 
   return (
     <footer className="footer">
@@ -56,6 +58,24 @@ export default function Footer() {
 
         <div className="footer-bottom">
           <span className="footer-copy">{t('footer.copy')}</span>
+          <button
+            type="button"
+            className="footer-sound"
+            onClick={() => window.dispatchEvent(new Event(OPEN_INTRO_EVENT))}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+              <path d="M4 9v6h3.5L13 19V5L7.5 9H4z" strokeLinejoin="round" />
+              {enabled ? (
+                <path d="M16.5 8.5a5 5 0 0 1 0 7" strokeLinecap="round" />
+              ) : (
+                <path d="M17 9.5l4 4M21 9.5l-4 4" strokeLinecap="round" />
+              )}
+            </svg>
+            <span>{lang === 'id' ? 'Preferensi suara' : 'Sound preference'}</span>
+            <span className="footer-sound-state">
+              {enabled ? (lang === 'id' ? 'musik' : 'music') : lang === 'id' ? 'senyap' : 'silent'}
+            </span>
+          </button>
         </div>
       </div>
     </footer>
