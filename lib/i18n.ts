@@ -15,6 +15,7 @@ export const translations = {
     'nav.simulator': 'Simulator',
     'nav.faq': 'FAQ',
     'hero.kicker': 'Electrical Engineering — The Future of Energy',
+    'video.play': 'Play video',
     'hero.t1': 'Powering',
     'hero.t2': 'Progress',
     'hero.desc':
@@ -269,6 +270,7 @@ export const translations = {
     'nav.simulator': 'Simulator',
     'nav.faq': 'FAQ',
     'hero.kicker': 'Teknik Elektro — Masa Depan Energi',
+    'video.play': 'Putar video',
     'hero.t1': 'Powering',
     'hero.t2': 'Progress',
     'hero.desc':

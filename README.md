@@ -15,13 +15,15 @@ npm start        # jalankan hasil build
 
 ```
 app/
-  layout.tsx      — shell: header, footer, intro overlay, scroll UI
+  layout.tsx      — shell: provider audio, header, footer, intro overlay, scroll UI
   page.tsx        — komposisi semua section
-  globals.css     — seluruh style (design system, komponen, responsive)
+  globals.css     — design system lama (tetap dipakai sebagai dasar)
+  refined.css     — lapisan desain v2: header, hero, musik, kartu, responsif
 
 components/
-  Header.tsx      — nav, toggle tema/bahasa, jam, indikator online
-  Hero.tsx        — slideshow 6 foto tiap 3 detik + slide dots
+  Header.tsx      — nav ringkas + dropdown, scrollspy, toggle tema/bahasa, info drawer
+  Hero.tsx        — slideshow 6 foto, panel standar, CTA ganda
+  MusicPlayer.tsx — tombol musik di header + mini player
   Stats.tsx       — counter animasi, quick-link bar, insights
   Sections.tsx    — video band, tentang, layanan, industri, K3
   Sections2.tsx   — proyek, proses, galeri, data teknis, komponen
@@ -30,15 +32,18 @@ components/
   Footer.tsx      — footer multi-kolom
   IntroOverlay.tsx— gerbang sambutan saat kunjungan pertama
   ScrollUI.tsx    — progress bar scroll + tombol kembali ke atas
+  ScrollReveal.tsx— animasi masuk per section (menghormati prefers-reduced-motion)
 
 lib/
   i18n.ts         — kamus EN/ID (satu sumber untuk semua teks)
   app-context.tsx — provider bahasa + tema
+  audio.tsx       — state musik latar (play/pause, volume, preferensi tersimpan)
+  assets.ts       — helper path aset agar aman di Vercel maupun GitHub Pages
 
 public/
   foto/           — foto galeri, hero, komponen
   video/          — video latar
-  tantejj/        — musik latar
+  audio/theme.mp3 — musik latar
 ```
 
 ## Menambah section baru
@@ -53,5 +58,10 @@ public/
 - Semua teks bilingual. `lib/i18n.ts` adalah satu-satunya sumber terjemahan;
   kunci yang hilang akan jatuh kembali ke bahasa Indonesia lalu ke nama kunci.
 - Tema dan bahasa disimpan di `localStorage`, bukan server.
-- Musik tidak autoplay lewat elemen audio: `IntroOverlay` memicu pemutaran setelah
-  pengunjung menekan tombol lanjut, sesuai aturan autoplay browser.
+- **Musik latar**: browsers melarang autoplay tanpa interaksi. `AudioProvider`
+  mencoba memutar saat halaman dibuka; bila ditolak, pemutaran dimulai pada
+  klik/sentuhan pertama dan ikon di header menandai status itu. Preferensi
+  (`musicEnabled`) disimpan, jadi pilihan "tanpa suara" tidak dibatalkan sendiri.
+  Semua kontrol ada di header + mini player kiri bawah.
+- Aset publik selalu lewat `asset()` (`lib/assets.ts`) — jangan menulis
+  `/foto/...` langsung, karena build GitHub Pages memakai base path `/Electrical`.

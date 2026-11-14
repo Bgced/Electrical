@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApp } from '@/lib/app-context';
+import { asset } from '@/lib/assets';
 import type { I18nKey } from '@/lib/i18n';
 
 function SectionHead({ label }: { label: I18nKey }) {
@@ -15,28 +16,124 @@ function SectionHead({ label }: { label: I18nKey }) {
 }
 
 /* ---------------- Video ---------------- */
+const VIDEO_SRC = asset('/video/plts-pertamina-rokan.mp4');
+const VIDEO_POSTER = asset('/video/plts-pertamina-rokan.jpg');
+
 export function VideoBand() {
   const { t } = useApp();
   const videoRef = useRef<HTMLVideoElement>(null);
+  // Autoplay can be refused (Safari low-power, Chrome with autoplay blocked,
+  // background tab). Without a way to start it the band just sits on a frozen
+  // first frame, so track that and offer an explicit play button.
+  const [blocked, setBlocked] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  // React does not always write the `muted` attribute to the DOM, which lets the
-  // video soundtrack play alongside the background music. Force it imperatively.
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = true;
-      videoRef.current.defaultMuted = true;
-      videoRef.current.volume = 0;
+  const requestPlay = useCallback(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    // React drops the `muted` attribute on the DOM, which lets the video
+    // soundtrack fight the background music. Set it on the element directly.
+    el.muted = true;
+    el.defaultMuted = true;
+    el.volume = 0;
+    const started = el.play();
+    if (started && typeof started.then === 'function') {
+      started.then(() => setBlocked(false)).catch(() => setBlocked(true));
     }
   }, []);
 
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+
+    el.muted = true;
+    el.defaultMuted = true;
+    el.volume = 0;
+
+    let inView = true;
+    let disposed = false;
+
+    const play = () => {
+      if (disposed || !inView) return;
+      const started = el.play();
+      if (started && typeof started.then === 'function') {
+        started.then(() => setBlocked(false)).catch(() => setBlocked(true));
+      }
+    };
+
+    const onError = () => setFailed(true);
+    // Chromium pauses media in hidden tabs and never resumes it by itself.
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') play();
+    };
+
+    // `preload` alone leaves the element cold until something asks for data.
+    el.load();
+    el.addEventListener('error', onError);
+    el.addEventListener('loadeddata', play);
+    document.addEventListener('visibilitychange', onVisibility);
+    play();
+
+    // The band is 80vh tall, so it is off-screen most of the time. Only decode
+    // it while it can actually be seen.
+    let observer: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            inView = entry.isIntersecting;
+            if (inView) play();
+            else el.pause();
+          });
+        },
+        { threshold: 0.2 }
+      );
+      observer.observe(el);
+    }
+
+    return () => {
+      disposed = true;
+      el.removeEventListener('error', onError);
+      el.removeEventListener('loadeddata', play);
+      document.removeEventListener('visibilitychange', onVisibility);
+      observer?.disconnect();
+    };
+  }, []);
+
   return (
-    <section className="video-section" id="video">
-      <video ref={videoRef} autoPlay muted loop playsInline preload="metadata">
-        <source
-          src="video/vidssave.com%20Dukung%20Energi%20Bersih%2C%20Ini%20PLTS%20Terbesar%20Pertamina%20di%20Rokan%20720P.mp4"
-          type="video/mp4"
+    <section
+      className="video-section"
+      id="video"
+      style={{ backgroundImage: `url(${VIDEO_POSTER})` }}
+    >
+      {!failed && (
+        <video
+          ref={videoRef}
+          src={VIDEO_SRC}
+          poster={VIDEO_POSTER}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          disableRemotePlayback
+          aria-hidden="true"
+          onError={() => setFailed(true)}
         />
-      </video>
+      )}
+      {blocked && !failed && (
+        <button
+          type="button"
+          className="video-play"
+          onClick={requestPlay}
+          aria-label={t('video.play')}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5v14l11-7z" fill="currentColor" />
+          </svg>
+          <span>{t('video.play')}</span>
+        </button>
+      )}
       <div className="video-overlay">
         <div className="container">
           <div className="video-info">

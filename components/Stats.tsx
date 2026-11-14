@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '@/lib/app-context';
+import { asset } from '@/lib/assets';
 import type { I18nKey } from '@/lib/i18n';
 
 const LINKS: { href: string; key: I18nKey; icon: string }[] = [
@@ -189,7 +190,7 @@ export function Insights() {
           <a href="#komponen" className="ins-feature">
             <div className="ins-feature-photo">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="foto/panel-distribusi.jpg" alt="Panel distribusi" loading="lazy" />
+              <img src={asset('/foto/panel-distribusi.jpg')} alt="Panel distribusi" loading="lazy" />
               <span className="ins-feature-tag">{t('ins.tag1')}</span>
             </div>
             <div className="ins-feature-body">

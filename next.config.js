@@ -23,6 +23,10 @@ const nextConfig = {
   images: {
     unoptimized: isPages,
   },
+  env: {
+    NEXT_PUBLIC_BASE_PATH: isPages ? '/Electrical' : '',
+  },
+  devIndicators: false,
 };
 
 module.exports = nextConfig;

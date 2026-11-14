@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useApp } from '@/lib/app-context';
 import type { I18nKey } from '@/lib/i18n';
 
@@ -11,12 +12,12 @@ export default function Footer() {
       <div className="container">
         <div className="footer-inner">
           <div className="footer-brand">
-            <a href="/" className="logo">
+            <Link href="/" className="logo">
               <svg className="logo-icon" viewBox="0 0 24 24" fill="none">
                 <path d="M13 2L3 14H11L11 22L21 10H13V2Z" fill="currentColor" />
               </svg>
               <span className="logo-text">Electrical Engineering</span>
-            </a>
+            </Link>
             <p className="footer-tag">{t('footer.tag')}</p>
           </div>
 
